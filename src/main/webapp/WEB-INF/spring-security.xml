@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security.xsd">
+
+        <http auto-config="true" use-expressions="true">
+	        <intercept-url pattern="/Login" access="permitAll" />	        
+	        <intercept-url pattern="/logout" access="permitAll" />
+	        <intercept-url pattern="/inactive" access="permitAll" />
+	        <intercept-url pattern="/apiListener/**" access="permitAll" />
+	        <intercept-url pattern="/accessdenied" access="permitAll" />
+	        <intercept-url pattern="/resources/**" access="permitAll" />
+	        <intercept-url pattern="/**" access="hasRole('Connected')" />
+	        <form-login login-page="/Login" default-target-url="/Inicio"
+	            always-use-default-target="true"	                      
+	            authentication-failure-url="/Login?error" />
+	        <logout logout-success-url="/Login" logout-url="/logout" invalidate-session="true"/>	       	       		        		       	
+        </http>
+
+        <authentication-manager>
+		  <authentication-provider>	      
+		      <password-encoder hash="md5"/>
+			  <jdbc-user-service data-source-ref="theDataSource"		    
+			    users-by-username-query="select login,password,'true' enabled from users where login=?"
+			    authorities-by-username-query=" select u.login,'Connected' as Descripcion,r.idRole FROM users u
+												join usersrole ur
+												on u.idUsers = ur.idUsers
+												join role r
+												on ur.idRole = r.idRole
+												where u.login = ?"
+		    />				    		
+		  </authentication-provider>
+		</authentication-manager>
+</beans:beans>
